@@ -219,6 +219,10 @@ class PostFormTests(TestCase):
             last_comment.text == form_data['text']
         )
 
+        self.assertTrue(
+            last_comment.post == PostFormTests.test_post
+        )
+
         self.assertRedirects(response, reverse(
             'posts:post_detail',
             kwargs={'post_id': PostFormTests.test_post.id}))

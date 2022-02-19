@@ -8,8 +8,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from yatube.settings import POSTS_ON_PAGE
+
 from ..models import Comment, Follow, Group, Post
-from ..views import POSTS_ON_PAGE
 
 User = get_user_model()
 
@@ -346,28 +347,38 @@ class PostsFollowTests(TestCase):
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(PostsFollowTests.user2)
 
+    def check_follow_exists(self):
+        return Follow.objects.filter(
+            user=PostsFollowTests.user,
+            author=PostsFollowTests.user2
+        ).exists()
+
     def test_follow_button_creates_and_deletes_follow(self):
-        """Кнопки подписка/отписка создают и удаляют объект подписки."""
+        """Кнопка подписки создает объект подписки."""
 
-        def check_follow_exists():
-            return Follow.objects.filter(
-                user=PostsFollowTests.user,
-                author=PostsFollowTests.user2
-            ).exists()
-
-        self.assertFalse(check_follow_exists())
+        self.assertFalse(self.check_follow_exists())
 
         self.authorized_client.get(reverse(
             'posts:profile_follow',
             kwargs={'username': PostsFollowTests.user2}))
 
-        self.assertTrue(check_follow_exists())
+        self.assertTrue(self.check_follow_exists())
+
+    def test_follow_button_creates_and_deletes_follow(self):
+        """Кнопка отписки удаляет объект подписки."""
+
+        Follow.objects.create(
+            user=PostsFollowTests.user,
+            author=PostsFollowTests.user2
+        )
+
+        self.assertTrue(self.check_follow_exists())
 
         self.authorized_client.get(reverse(
             'posts:profile_unfollow',
             kwargs={'username': PostsFollowTests.user2}))
 
-        self.assertFalse(check_follow_exists())
+        self.assertFalse(self.check_follow_exists())
 
     def test_follow_show_correct_context(self):
         """Шаблон follow сформирован с правильным контекстом"""

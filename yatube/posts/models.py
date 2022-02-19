@@ -19,6 +19,12 @@ class Follow(models.Model):
         verbose_name='Автор'
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'],
+                                    name='unique_follow')
+        ]
+
 
 class Group(models.Model):
     title = models.CharField(max_length=200)

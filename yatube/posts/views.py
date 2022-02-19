@@ -1,22 +1,9 @@
-from typing import List, Tuple, Union
-
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Page, Paginator
-from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post, User
-
-POSTS_ON_PAGE = 10
-
-
-def pagination(page_number: int,
-               post_list: Union[QuerySet, List[Post], Tuple[Post]],
-               posts_on_page: int = POSTS_ON_PAGE) -> Page:
-
-    paginator = Paginator(post_list, posts_on_page)
-    return paginator.get_page(page_number)
+from .utils import pagination
 
 
 def index(request):
@@ -56,9 +43,8 @@ def profile(request, username):
 
     following = False
     if request.user.is_authenticated:
-        if Follow.objects.filter(user=request.user,
-                                 author=author).exists():
-            following = True
+        following = Follow.objects.filter(user=request.user,
+                                          author=author).exists()
 
     post_list = author.posts.select_related('group')
     page_number = request.GET.get('page')
@@ -172,12 +158,12 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if request.user.username != username:
-        if not Follow.objects.filter(user=request.user,
-                                     author=author).exists():
-            following = get_object_or_404(User, username=username)
-            Follow.objects.create(user=request.user, author=following)
-            return redirect('posts:follow_index')
+    if request.user != author:
+        Follow.objects.get_or_create(
+            user=request.user,
+            author=author
+        )
+        return redirect('posts:follow_index')
     return redirect('posts:follow_index')
 
 
