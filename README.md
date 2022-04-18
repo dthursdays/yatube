@@ -2,7 +2,7 @@
 
 ## Описание
 
-Это сайт-социальная сеть написанный на Django
+Это социальная сеть, написанная на Django
 
 ### Как запустить
 
@@ -47,4 +47,5 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+
 
