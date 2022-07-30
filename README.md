@@ -54,6 +54,8 @@ python3 manage.py runserver
 
 - python 3.9.7
 - django 2.2.16
+- Pillow 8.3.1
+- pytest 6.2.4
 
 ## Над проектом работал:
 
